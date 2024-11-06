@@ -1,0 +1,1112 @@
+openapi: 3.0.3
+info:
+  title: Discord Clone API
+  description: |
+    A REST API for managing channels, direct messages, servers, and users in a Discord clone application.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '617a518f130b3fdd2a5c89a9'
+        channelName:
+          type: string
+          example: 'general'
+        channelType:
+          type: string
+          example: 'TEXT'
+        serverId:
+          type: string
+          example: '615f518f130b3fdd2a5b89a1'
+        description:
+          type: string
+          example: 'TEXT'
+    ChannelCreate:
+      type: object
+      properties:
+        channelName:
+          type: string
+          example: 'new-channel'
+        channelType:
+          type: string
+          example: 'TEXT'
+        serverId:
+          type: string
+          example: '615f518f130b3fdd2a5b89a1'
+    ChannelUpdate:
+      type: object
+      properties:
+        channelName:
+          type: string
+          example: 'updated-channel'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '614b518f130b3fdd2a5c89c9'
+        name:
+          type: string
+          example: 'John Doe'
+        email:
+          type: string
+          example: 'linhshark022@gmail.com'
+        imageUrl:
+          type: string
+          example: 'uploads/defaults/0.png'
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 'linhshark022@gmail.com'
+        password:
+          type: string
+          example: 'abcxyz123@'
+    UserRegister:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'John Doe'
+        email:
+          type: string
+          example: 'linhshark022@gmail.com'
+        password:
+          type: string
+          example: 'abcxyz123@'
+    RefreshToken:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    PasswordUpdate:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          example: 'oldabcxyz123@'
+        newPassword:
+          type: string
+          example: 'newPassword456'
+    RequestPasswordReset:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 'linhshark022@gmail.com'
+    ResetPassword:
+      type: object
+      properties:
+        password:
+          type: string
+          example: 'newPassword456'
+
+    Server:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '617a518f130b3fdd2a5c89a9'
+        serverName:
+          type: string
+          example: 'My Server'
+        owner:
+          type: string
+          example: '614b518f130b3fdd2a5c89c9'
+        members:
+          type: array
+          items:
+            type: string
+          example: ['614b518f130b3fdd2a5c89c9', '615b518f130b3fdd2a5c89e0']
+        imageUrl:
+          type: string
+          example: 'uploads/serverImage.png'
+    ServerCreate:
+      type: object
+      properties:
+        serverName:
+          type: string
+          example: 'My New Server'
+        ownerId:
+          type: string
+          example: '66f9015f6adef60dff23d15e'
+        image:
+          type: string
+          format: binary
+    ServerUpdate:
+      type: object
+      properties:
+        serverName:
+          type: string
+          example: 'My Updated Server'
+        image:
+          type: string
+          format: binary
+    InviteCode:
+      type: object
+      properties:
+        inviteCode:
+          type: string
+          example: 'a1b2c3d4'
+    Member:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: '614b518f130b3fdd2a5c89c9'
+        name:
+          type: string
+          example: 'John Doe'
+        email:
+          type: string
+          example: 'john.doe@example.com'
+        imageUrl:
+          type: string
+          example: 'uploads/profileImage.png'
+
+    Message:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '614b518f130b3fdd2a5c89e1'
+        senderId:
+          type: object
+          properties:
+            _id:
+              type: string
+              example: '614b518f130b3fdd2a5c89e0'
+            name:
+              type: string
+              example: 'John Doe'
+            imageUrl:
+              type: string
+              example: 'uploads/userImage.png'
+        content:
+          type: string
+          example: 'Hello, everyone!'
+        channelId:
+          type: string
+          example: '614b518f130b3fdd2a5c89d9'
+    MessageCreate:
+      type: object
+      properties:
+        content:
+          type: string
+          example: 'This is a new message'
+    MessageDelete:
+      type: object
+      properties:
+        messageId:
+          type: string
+          example: '614b518f130b3fdd2a5c89e1'
+
+    DirectMessage:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '617a518f130b3fdd2a5c89a9'
+        senderId:
+          type: object
+          properties:
+            senderId:
+              type: string
+              example: '614b518f130b3fdd2a5c89c9'
+            name:
+              type: string
+              example: 'John Doe'
+            imageUrl:
+              type: string
+              example: 'uploads/userImage.png'
+        recipientId:
+          type: string
+          example: '614b518f130b3fdd2a5c89e1'
+        message:
+          type: string
+          example: 'Hello, how are you?'
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-08-23T12:00:00Z'
+    DirectMessageCreate:
+      type: object
+      properties:
+        recipientId:
+          type: string
+          example: '614b518f130b3fdd2a5c89e1'
+        message:
+          type: string
+          example: 'Hello, how are you?'
+
+paths:
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Log in a user
+      description: Log in a user and retrieve a JWT token.
+      requestBody:
+        description: User login data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        '400':
+          description: Invalid login credentials
+        '401':
+          description: Unauthorized access
+
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      description: Register a new user with a name, email, and password.
+      requestBody:
+        description: User registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Invalid registration data
+
+  /user/refresh-token:
+    post:
+      tags:
+        - User
+      summary: Refresh access token
+      description: Refresh the access token using a refresh token.
+      requestBody:
+        description: Refresh token data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        '200':
+          description: New tokens retrieved successfully
+        '400':
+          description: Invalid token
+
+  /user/update-user:
+    put:
+      tags:
+        - User
+      summary: Update user profile
+      description: Update a user's profile including name, email, and image.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: User profile update data
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'John Doe'
+                email:
+                  type: string
+                  example: 'linhshark022@gmail.com'
+                image:
+                  type: string
+                  format: binary
+                  description: Optional profile image
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Invalid data
+
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get all users
+      description: Retrieve a list of all registered users.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized access
+
+  /user/detail:
+    get:
+      tags:
+        - User
+      summary: Get user details
+      description: Retrieve the details of the currently logged-in user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized access
+
+  /user/get-user-by-email:
+    post:
+      tags:
+        - User
+      summary: Get user by email
+      description: Retrieve a user by their email.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Email data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPasswordReset'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid email
+        '404':
+          description: User not found
+
+  /user/request-password-reset:
+    post:
+      tags:
+        - User
+      summary: Request password reset
+      description: Request a password reset link by providing the user's email.
+      requestBody:
+        description: Email data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPasswordReset'
+      responses:
+        '200':
+          description: Password reset link sent successfully
+        '400':
+          description: Invalid email
+
+  /user/reset-password/{resetToken}:
+    post:
+      tags:
+        - User
+      summary: Reset password
+      description: Reset the user's password using a reset token.
+      parameters:
+        - name: resetToken
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Token for password reset
+      requestBody:
+        description: New password data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Invalid token or password
+
+  /user/update-password:
+    put:
+      tags:
+        - User
+      summary: Update password
+      description: Update the password for the currently logged-in user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Password update data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordUpdate'
+      responses:
+        '200':
+          description: Password updated successfully
+        '400':
+          description: Invalid data
+
+  /user/logout:
+    get:
+      tags:
+        - User
+      summary: Log out user
+      description: Log out the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User logged out successfully
+        '401':
+          description: Unauthorized access
+
+  /server:
+    get:
+      tags:
+        - Server
+      summary: Get all servers
+      description: Retrieve a list of all servers.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of servers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Server'
+        '401':
+          description: Unauthorized access
+
+    post:
+      tags:
+        - Server
+      summary: Create a new server
+      description: Create a new server with an optional image. The **ownerId** is extracted from the JWT token and not provided in the request body.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Server creation data (the ownerId is extracted from the JWT token)
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServerCreate'
+      responses:
+        '201':
+          description: Server created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+  /server/{id}:
+    get:
+      tags:
+        - Server
+      summary: Get server by ID
+      description: Retrieve a specific server's details using its ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server to retrieve
+      responses:
+        '200':
+          description: Server details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+
+    put:
+      tags:
+        - Server
+      summary: Update server details
+      description: Update a server's details such as its name and image.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server to update
+      requestBody:
+        description: Server update data
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ServerUpdate'
+      responses:
+        '200':
+          description: Server updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+
+    delete:
+      tags:
+        - Server
+      summary: Delete server by ID
+      description: Delete a server by its ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server to delete
+      responses:
+        '204':
+          description: Server deleted successfully
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+
+  /server/user/servers:
+    get:
+      tags:
+        - Server
+      summary: Get all servers by user
+      description: Retrieve a list of all servers the user belongs to.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of servers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Server'
+        '401':
+          description: Unauthorized access
+
+  /server/add-member/{id}:
+    post:
+      tags:
+        - Server
+      summary: Add a new member to a server
+      description: Add a new member to the specified server by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+      requestBody:
+        description: Member data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memberId:
+                  type: string
+                  example: '614b518f130b3fdd2a5c89c9'
+      responses:
+        '200':
+          description: Member added successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+  /server/remove-member/{id}:
+    delete:
+      tags:
+        - Server
+      summary: Remove a member from a server
+      description: Remove a member from the specified server by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+      requestBody:
+        description: Member data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memberId:
+                  type: string
+                  example: '614b518f130b3fdd2a5c89c9'
+      responses:
+        '200':
+          description: Member removed successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+  /server/get-invite-code/{id}:
+    get:
+      tags:
+        - Server
+      summary: Get server invite code
+      description: Get the invite code for a specific server.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+      responses:
+        '200':
+          description: Invite code retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteCode'
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+
+  /server/join-server/{inviteCode}:
+    get:
+      tags:
+        - Server
+      summary: Join a server via invite code
+      description: Join a server by using an invite code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: inviteCode
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Invite code for the server
+      responses:
+        '200':
+          description: Successfully joined the server
+        '400':
+          description: Invalid invite code
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+
+  /server/get-members/{serverId}:
+    get:
+      tags:
+        - Server
+      summary: Get all members of a server
+      description: Retrieve a list of all members in a server.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+      responses:
+        '200':
+          description: A list of server members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                      example: '614b518f130b3fdd2a5c89c9'
+                    name:
+                      type: string
+                      example: 'John Doe'
+                    email:
+                      type: string
+                      example: 'john.doe@example.com'
+                    imageUrl:
+                      type: string
+                      example: 'uploads/profileImage.png'
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Server not found
+  /channel/{serverId}:
+    get:
+      tags:
+        - Channel
+      summary: Get all channels in a server
+      description: Retrieve a list of all channels in the specified server.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server to get channels for
+      responses:
+        '200':
+          description: A list of channels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Channel'
+        '401':
+          description: Unauthorized access
+
+  /channel/detail/{id}:
+    get:
+      tags:
+        - Channel
+      summary: Get a channel by server ID
+      description: Retrieve details of a specific channel by server ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+      responses:
+        '200':
+          description: Channel details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Channel not found
+
+  /channel:
+    post:
+      tags:
+        - Channel
+      summary: Create a new channel
+      description: Create a new channel within a server.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Channel data to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreate'
+      responses:
+        '201':
+          description: Channel created successfully
+        '400':
+          description: Bad request (e.g., invalid data supplied)
+        '401':
+          description: Unauthorized access
+
+  /channel/{id}:
+    put:
+      tags:
+        - Channel
+      summary: Update a channel by ID
+      description: Update the details of a channel.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel to update
+      requestBody:
+        description: Channel data to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelUpdate'
+      responses:
+        '200':
+          description: Channel updated successfully
+        '400':
+          description: Bad request (e.g., invalid data supplied)
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Channel not found
+
+    delete:
+      tags:
+        - Channel
+      summary: Delete a channel by ID
+      description: Delete a channel by its ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel to delete
+      responses:
+        '204':
+          description: Channel deleted successfully
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Channel not found
+
+  /channel/{serverId}/{channelId}:
+    get:
+      tags:
+        - Channel
+      summary: Get a channel by channel ID
+      description: Retrieve details of a specific channel by its channel ID within a server.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the server
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel to retrieve
+      responses:
+        '200':
+          description: Channel details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '401':
+          description: Unauthorized access
+        '404':
+          description: Channel not found
+
+  /message/{channelId}:
+    get:
+      tags:
+        - Message
+      summary: Get all messages in a channel
+      description: Retrieve all messages for a specific channel.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel to retrieve messages for
+      responses:
+        '200':
+          description: A list of messages for the channel
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          description: Unauthorized access
+
+    post:
+      tags:
+        - Message
+      summary: Create a new message in a channel
+      description: Create a new message in a specific channel. The senderId is extracted from the JWT token.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel to send the message to
+      requestBody:
+        description: Message data (content only, senderId is extracted from the JWT token)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+    delete:
+      tags:
+        - Message
+      summary: Delete a message in a channel
+      description: Delete a specific message from a channel. The message can only be deleted by the user who sent it.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the channel where the message was sent
+      requestBody:
+        description: Message to be deleted (messageId required)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageDelete'
+      responses:
+        '200':
+          description: Message deleted successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+  /directMessage/send:
+    post:
+      tags:
+        - Direct Message
+      summary: Send a direct message to a recipient
+      description: Send a direct message to a recipient. The senderId is extracted from the JWT token.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Message details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectMessageCreate'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectMessage'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access
+
+  /directMessage/{recipientId}:
+    get:
+      tags:
+        - Direct Message
+      summary: Get all messages in a conversation with a specific user
+      description: Retrieve all direct messages exchanged between the current user and a specific recipient.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: recipientId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the recipient
+      responses:
+        '200':
+          description: A list of messages in the conversation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DirectMessage'
+        '401':
+          description: Unauthorized access

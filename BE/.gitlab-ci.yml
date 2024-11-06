@@ -1,0 +1,49 @@
+image: node:14
+
+variables:
+  GIT_STRATEGY: fetch
+  GIT_CLEAN_FLAGS: -ffdx -e node_modules -e .env.production
+
+stages:
+  - install
+  - build
+  - test
+  - deploy
+
+install_node_modules:
+  stage: install
+  script:
+    - npm install --no-optional
+  only:
+    - develop
+    - production
+  tags:
+    - local
+
+build_backend:
+  stage: build
+  script:
+    - cp .env.development .env.production
+    - rm -rf .env
+    - npm run dev
+  only:
+    - develop
+    - master
+  dependencies:
+    - install_node_modules
+  tags:
+    - local
+
+test_client:
+  stage: test
+  script:
+    - echo "Run test..."
+  only:
+    - develop
+    - master
+  dependencies:
+    - install_node_modules
+  tags:
+    - local
+
+

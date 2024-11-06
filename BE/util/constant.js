@@ -1,0 +1,17 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+const JWT_TOKEN = {
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+  JWT_INVITE_SECRET: process.env.JWT_INVITE_SECRET,
+  JWT_INVITE_LIFETIME: process.env.JWT_INVITE_LIFETIME,
+  JWT_ACCESS_LIFETIME: process.env.JWT_ACCESS_LIFETIME,
+  JWT_REFRESH_LIFETIME: process.env.JWT_REFRESH_LIFETIME,
+  JWT_RESET_SECRET: process.env.JWT_RESET_SECRET,
+  JWT_RESET_LIFETIME: process.env.JWT_RESET_LIFETIME,
+};
+
+
+
+export default JWT_TOKEN;

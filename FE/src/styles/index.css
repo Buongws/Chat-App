@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* ****************************
+    Common Buttons
+    **************************** */
+  .primary-btn {
+    @apply bg-[#4E31AA] border-[#4E31AA] text-[#FFFFFF] text-[14px] font-semibold rounded-[4px] hover:shadow-none;
+  }
+  .primary-btn-cancel {
+    @apply border-[#EF2F88] text-[#EF2F88] text-[14px] font-semibold rounded-[4px] hover:shadow-none bg-transparent;
+  }
+  .seconday-btn {
+    @apply border-[#727272] text-[#727272] text-[14px]  rounded-[4px] hover:shadow-none bg-transparent;
+  }
+  .ternary-btn {
+    @apply border-[#4E31AA] text-[#4E31AA] text-[14px]  rounded-[4px] hover:shadow-none bg-transparent;
+  }
+
+  /* ****************************
+    website fonts
+    **************************** */
+
+  @font-face {
+    font-family: "cairo-regular";
+    src: url(../assets/fonts/Cairo-Regular.ttf) format("truetype");
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #404eed;
+}
+
+.background-server {
+  background-color: #202225;
+}
+.background-channels {
+  background-color: #2f3136;
+}
+.background-right {
+  background-color: #36393f;
+}
+
+/* Custom scrollbar styles for the messages container */
+.messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #2f3136; /* Scrollbar track color */
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background-color: #2f3136; /* Scrollbar thumb color */
+  border-radius: 10px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background-color: #646872; /* Scrollbar thumb hover color */
+}
+
+/* For Firefox */
+.messages {
+  scrollbar-width: thin;
+  scrollbar-color: #6f7380 #2f3136;
+}
