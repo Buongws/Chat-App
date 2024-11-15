@@ -254,6 +254,8 @@ const resetPassword = async (newPassword, resetToken) => {
   const hashPassword = bcrypt.hashSync(newPassword, salt);
   user.password = hashPassword;
   user.refreshToken = '';
+
+  user.resetToken = null;
   return await userRepository.updateUser(userId, user);
 };
 

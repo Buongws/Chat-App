@@ -13,13 +13,20 @@ import swaggerSetup from './swagger.js';
 import directMessageRoute from './src/directMessage/directMessage.route.js';
 import serverRoute from './src/server/server.route.js';
 import channelRoute from './src/channel/channel.route.js';
+import roomUserRedis from './src/dbs/roomUserRedis.js';
+
 import userRoute from './src/user/user.route.js';
 import messageRoute from './src/message/message.route.js';
 import errorHandler from './src/middlewares/error.middleware.js';
+import { initRedis, getRedis } from './src/dbs/init.redis.js';
 
 const app = express();
 app.use(cors());
 dotenv.config();
+
+const redisClient = initRedis();
+
+getRedis();
 
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
@@ -85,6 +92,7 @@ app.use('/server', serverRoute);
 app.use('/user', userRoute);
 app.use('/channel', channelRoute);
 app.use('/message', messageRoute);
+app.use('/roomUser', roomUserRedis);
 app.use('/directMessage', directMessageRoute);
 swaggerSetup(app);
 // error handler
@@ -106,21 +114,41 @@ const io = new Server(httpServer, {
 const roomUsers = {}; // Track users per room
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  const updateAllRooms = () => {
+  const updateAllRooms = async () => {
     for (const room in roomUsers) {
-      io.emit('channel-users', { roomId: room, users: roomUsers[room] });
+      const users = await redisClient.lrange(`room:${room}`, 0, -1);
+      const parsedUsers = users.map((user) => JSON.parse(user));
+      io.emit('channel-users', { roomId: room, users: parsedUsers });
+    }
+  };
+
+  // Utility function to ensure Redis key is a list
+  const ensureList = async (key) => {
+    const keyType = await redisClient.type(key);
+    if (keyType !== 'list') {
+      await redisClient.del(key); // Delete the key to reset as a list
+      console.log(
+        `Key ${key} was deleted to reset as a list (was type: ${keyType})`
+      );
     }
   };
 
   // Join a voice channel room
-  socket.on('join-room', ({ roomId, userId, userName, avatar }) => {
+  socket.on('join-room', async ({ roomId, userId, userName, avatar }) => {
+    console.log('userId have join the room', userId, 'In room', roomId);
+
+    await ensureList(`room:${roomId}`);
+
     // Remove the user from any previous room they were in
-    for (const room in roomUsers) {
-      if (room !== roomId) {
-        roomUsers[room] = roomUsers[room].filter(
+    for (const existingRoom in roomUsers) {
+      if (existingRoom !== roomId) {
+        roomUsers[existingRoom] = roomUsers[existingRoom].filter(
           (user) => user.userId !== userId
+        );
+        await redisClient.lrem(
+          `room:${existingRoom}`,
+          0,
+          JSON.stringify({ userId, userName, avatar })
         );
       }
     }
@@ -129,20 +157,21 @@ io.on('connection', (socket) => {
       roomUsers[roomId] = [];
     }
 
-    // Add the user to the new room
-    const userExists = roomUsers[roomId].some((user) => user.userId === userId);
-    if (!userExists) {
-      roomUsers[roomId].push({
-        userId,
-        name: userName,
-        avatar,
-        socketId: socket.id,
-      });
+    const userObj = { userId, name: userName, avatar, socketId: socket.id };
+
+    const existingUsers = await redisClient.lrange(`room:${roomId}`, 0, -1);
+    const isUserInRoom = existingUsers.some(
+      (user) => JSON.parse(user).userId === userId
+    );
+
+    if (!isUserInRoom) {
+      roomUsers[roomId].push(userObj);
+      await redisClient.rpush(`room:${roomId}`, JSON.stringify(userObj)); // Store user as JSON
     }
+
     // Join the new room
     socket.join(roomId);
 
-    // Emit updated user lists for all rooms
     updateAllRooms();
     console.log(`${userName} joined room: ${roomId}`);
 
@@ -167,32 +196,50 @@ io.on('connection', (socket) => {
     });
   });
   // Leave a voice channel room
-  socket.on('leave-room', ({ roomId, userId }) => {
+  socket.on('leave-room', async ({ roomId, userId }) => {
     if (roomUsers[roomId]) {
-      // Remove the user from the room
-      roomUsers[roomId] = roomUsers[roomId].filter(
-        (user) => user.userId !== userId
+      await ensureList(`room:${roomId}`);
+
+      // Retrieve the stored user object format
+      const storedUser = roomUsers[roomId].find(
+        (user) => user.userId === userId
       );
+
+      if (storedUser) {
+        roomUsers[roomId] = roomUsers[roomId].filter(
+          (user) => user.userId !== userId
+        );
+        await redisClient.lrem(`room:${roomId}`, 0, JSON.stringify(storedUser)); // Remove exact stored format
+      }
+
       socket.leave(roomId);
 
       updateAllRooms();
-
-      console.log(`${userId} left room: ${roomId}`);
+      console.log(`User ${userId} left room: ${roomId}`);
     }
   });
 
-  socket.on('get-room-users', async ({ roomId }) => {
-    const users = await redis.get(`room:${roomId}`);
-    socket.emit('room-users-data', { roomId, users: JSON.parse(users) });
-  });
+  socket.on('disconnect', async () => {
+    const user = socket.authToken;
+    if (user) {
+      for (const roomId in roomUsers) {
+        const storedUser = roomUsers[roomId].find(
+          (u) => u.userId === user.userId
+        );
 
-  socket.on('disconnect', () => {
-    for (const roomId in roomUsers) {
-      roomUsers[roomId] = roomUsers[roomId].filter(
-        (user) => user.socketId !== socket.id
-      );
+        if (storedUser) {
+          roomUsers[roomId] = roomUsers[roomId].filter(
+            (u) => u.userId !== user.userId
+          );
+          await redisClient.lrem(
+            `room:${roomId}`,
+            0,
+            JSON.stringify(storedUser)
+          );
+        }
+      }
+      updateAllRooms();
+      console.log('User disconnected:', socket.id);
     }
-    updateAllRooms();
-    console.log('User disconnected:', socket.id);
   });
 });

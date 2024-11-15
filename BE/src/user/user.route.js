@@ -34,6 +34,8 @@ router.put(
   userController.updateUser
 );
 
+router.get('/room-users/:roomId', userController.getRoomUsers);
+
 router.get('/', verifyToken, userController.getAllUsers);
 
 router.get('/detail', verifyToken, userController.getUserById);

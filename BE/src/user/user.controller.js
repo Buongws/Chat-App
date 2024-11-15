@@ -208,6 +208,27 @@ const logout = async (req, res, next) => {
   }
 };
 
+const getRoomUsers = async (req, res) => {
+  const { roomId } = req.params;
+
+  try {
+    const roomUsersList = await redisClient.lrange(`room:${roomId}`, 0, -1);
+    const users = roomUsersList
+      .map((userId) => {
+        const user = roomUsers[roomId]?.find((u) => u.userId === userId);
+        return user
+          ? { userId: user.userId, name: user.name, avatar: user.avatar }
+          : null;
+      })
+      .filter(Boolean);
+
+    res.json({ roomId, users });
+  } catch (error) {
+    console.error('Error fetching room users:', error);
+    res.status(500).json({ message: 'Error fetching room users' });
+  }
+};
+
 export default {
   login,
   register,
@@ -220,4 +241,5 @@ export default {
   resetPassword,
   logout,
   updatePassword,
+  getRoomUsers,
 };
