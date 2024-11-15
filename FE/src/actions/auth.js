@@ -91,10 +91,16 @@ export const login = (email, password) => (dispatch) => {
   );
 };
 
-export const logout = () => (dispatch) => {
-  AuthService.logout();
+export const logout = () => async (dispatch) => {
+  try {
+    await AuthService.logout();
 
-  dispatch({
-    type: LOGOUT,
-  });
+    dispatch({
+      type: LOGOUT,
+    });
+
+    Toast.showSuccess("Successfully logged out");
+  } catch (error) {
+    Toast.showError("Failed to logout");
+  }
 };

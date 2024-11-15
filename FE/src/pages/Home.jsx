@@ -1,6 +1,6 @@
 import { Bars4Icon, XMarkIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
-import ImageBanner from "/src/assets/images/landingPage/LOGO.png";
+import ImageBanner from "/src/assets/images/landingPage/logox.png";
 import ImageBannerBlack from "/src/assets/images/landingPage/LOGOBLACK.png";
 import ImageHeroLeft from "/src/assets/images/landingPage/Frame-1.png";
 import ImageHeroRight from "/src/assets/images/landingPage/Frame-2.png";
@@ -12,7 +12,7 @@ const Home = () => {
   const navigate = useNavigate();
   const navigateLogin = () => {
     navigate("/login");
-  }
+  };
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -23,13 +23,16 @@ const Home = () => {
         </a>
         <div className="hidden lg:flex text-white space-x-6">
           <a className="link">Download</a>
-          <a className="link">Why Discord?</a>
+
           <a className="link">Nitro</a>
           <a className="link">Safety</a>
           <a className="link">Support</a>
         </div>
         <div className="flex space-x-4">
-          <button onClick={navigateLogin} className="bg-white p-2 rounded-full text-xs md:text-sm px-4 focus:outline-none hover:shadow-2xl hover:text-discord_blurple transition duration-200 ease-in-out whitespace-nowrap font-medium">
+          <button
+            onClick={navigateLogin}
+            className="bg-white p-2 rounded-full text-xs md:text-sm px-4 focus:outline-none hover:shadow-2xl hover:text-discord_blurple transition duration-200 ease-in-out whitespace-nowrap font-medium"
+          >
             Login
           </button>
           <Bars4Icon
@@ -59,9 +62,6 @@ const Home = () => {
         <nav className="flex flex-col p-4 space-y-4 text-gray-900">
           <a className="link" href="#">
             Download
-          </a>
-          <a className="link" href="#">
-            Why Discord?
           </a>
           <a className="link" href="#">
             Nitro

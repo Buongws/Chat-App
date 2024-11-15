@@ -21,6 +21,7 @@ function EditUserModal({
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");

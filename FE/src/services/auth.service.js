@@ -1,4 +1,5 @@
 import { apiClient } from "../api/apiConfig";
+import Toast from "../utility/toast";
 
 const register = async (name, email, password) => {
   try {
@@ -28,12 +29,23 @@ const login = async (email, password) => {
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
-    throw error; 
+    throw error;
   }
 };
 
-const logout = () => {
-  localStorage.removeItem("user");
+const logout = async () => {
+  try {
+    await apiClient.get("/logout");
+
+    // Clear local storage data
+    localStorage.removeItem("user");
+    localStorage.removeItem("socketcluster.authToken");
+
+    Toast.showSuccess("Logout successful");
+  } catch (error) {
+    Toast.showError("Logout failed");
+    throw error;
+  }
 };
 
 export default {

@@ -72,3 +72,9 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #6f7380 #2f3136;
 }
+
+.blurred {
+  -webkit-filter: blur(4px);
+  filter: blur(4px);
+  opacity: 0.6;
+}

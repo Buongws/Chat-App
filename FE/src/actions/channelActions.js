@@ -18,7 +18,6 @@ export const fetchChannelsByServerId = createAsyncThunk(
 export const createNewChannel = createAsyncThunk(
   "channels/createNewChannel",
   async (channelData, { rejectWithValue }) => {
-
     try {
       const channel = await createChannel(channelData);
       return channel;
@@ -27,3 +26,4 @@ export const createNewChannel = createAsyncThunk(
     }
   }
 );
+// easy manage state of promise loading success error

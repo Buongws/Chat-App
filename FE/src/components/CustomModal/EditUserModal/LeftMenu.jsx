@@ -38,11 +38,10 @@ export default function LeftMenu({ activeTab, setActiveTab, handleLogout }) {
         </li>
       </ul>
 
-      {/* Logout confirmation modal */}
       <LogoutConfirmModal
         isOpen={isLogoutModalOpen}
         toggle={toggleLogoutModal}
-        onConfirm={handleLogout} // Pass handleLogout directly to onConfirm
+        onConfirm={handleLogout}
       />
     </div>
   );

@@ -15,12 +15,14 @@ const Footer = ({
   isHeadphoneMuted,
 }) => {
   const [modal, setModal] = useState(false);
+
   const toggleModal = useCallback(() => {
     setModal(!modal);
     if (handleUpdate) {
       handleUpdate();
     }
   }, [modal]);
+
   const { user } = useSelector((state) => state.user);
 
   return (
