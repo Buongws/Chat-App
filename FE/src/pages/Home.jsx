@@ -1,6 +1,6 @@
 import { Bars4Icon, XMarkIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
-import ImageBanner from "/src/assets/images/landingPage/logox.png";
+import ImageBanner from "/src/assets/images/landingPage/LOGOX.png";
 import ImageBannerBlack from "/src/assets/images/landingPage/LOGOBLACK.png";
 import ImageHeroLeft from "/src/assets/images/landingPage/Frame-1.png";
 import ImageHeroRight from "/src/assets/images/landingPage/Frame-2.png";
@@ -17,9 +17,13 @@ const Home = () => {
 
   return (
     <>
-      <header className="bg-discord_blue flex items-center justify-between py-4 px-6 h-16">
+      <header className="bg-discord_blue flex items-center justify-between pb-4 px-6">
         <a href="/">
-          <img src={ImageBanner} className="w-32 h-12 object-contain" alt="" />
+          <img
+            src={ImageBanner}
+            className="w-[9rem] h-30 object-contain"
+            alt=""
+          />
         </a>
         <div className="hidden lg:flex text-white space-x-6">
           <a className="link">Download</a>
@@ -92,8 +96,8 @@ const Home = () => {
               day and hang out more often.
             </h2>
             <div className="flex flex-col items-center sm:flex-row md:flex-col lg:flex-row sm:items-center gap-6">
-              <button className="bg-gray-900 text-white w-72 font-medium flex items-center justify-center rounded-full p-4 text-lg hover:shadow-2xl hover:bg-gray-800 focus:outline-none transition duration-200 ease-in-out">
-                Open Discord in your browser
+              <button className="bg-gray-900 text-white w-76 font-medium flex items-center justify-center rounded-full p-4 text-lg hover:shadow-2xl hover:bg-gray-800 focus:outline-none transition duration-200 ease-in-out">
+                Open SYNC ROOM in your browser
               </button>
             </div>
           </div>

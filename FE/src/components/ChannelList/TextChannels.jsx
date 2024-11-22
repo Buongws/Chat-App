@@ -36,12 +36,14 @@ const TextChannels = ({
                 # {channel.channelName}
               </p>
             </div>
-            {isOwner && (
-              <Cog8ToothIcon
-                onClick={toggleEditChannel}
-                className="w-5 h-5 text-gray-400"
-              />
-            )}
+            <div>
+              {isOwner && (
+                <Cog8ToothIcon
+                  onClick={toggleEditChannel}
+                  className="w-5 h-5 text-gray-400"
+                />
+              )}
+            </div>
           </div>
         ))}
     </div>

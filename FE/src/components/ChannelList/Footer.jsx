@@ -41,7 +41,10 @@ const Footer = ({
         </div>
       </div>
       <div className="flex">
-        <div className="relative cursor-pointer mr-3" onClick={toggleMicMute}>
+        <div
+          className="relative cursor-pointer mr-3"
+          onClick={() => toggleMicMute()}
+        >
           <img
             src={isMicMuted ? mutedMicrophone : microphone}
             alt="Mute/Unmute Mic"
@@ -49,7 +52,7 @@ const Footer = ({
         </div>
         <div
           className="relative cursor-pointer mr-3"
-          onClick={toggleHeadphoneMute}
+          onClick={() => toggleHeadphoneMute()}
         >
           <img
             src={isHeadphoneMuted ? mutedHeadset : headset}
