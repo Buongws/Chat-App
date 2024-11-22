@@ -38,6 +38,24 @@ let agServer = socketClusterServer.attach(httpServer, {
   authKey: process.env.JWT_ACCESS_SECRET,
 });
 
+const roomUsers = {}; // Global variable to track room users
+
+// Function to restore room users from Redis
+const restoreRoomUsersFromRedis = async () => {
+  const keys = await redisClient.keys('room:*');
+  for (const key of keys) {
+    const roomId = key.replace('room:', '');
+    const users = await redisClient.lrange(key, 0, -1);
+    roomUsers[roomId] = users.map((user) => JSON.parse(user));
+  }
+  console.log('Restored room users from Redis:', roomUsers);
+};
+
+// Restore room users before handling any socket connections
+restoreRoomUsersFromRedis().then(() => {
+  console.log('Room users restored successfully');
+});
+
 app.set('agServer', agServer);
 //jwt socket, nhan jwt token tu client.
 //user_id
@@ -111,14 +129,30 @@ const io = new Server(httpServer, {
   },
 });
 
-const roomUsers = {}; // Track users per room
-
 io.on('connection', (socket) => {
   const updateAllRooms = async () => {
-    for (const room in roomUsers) {
-      const users = await redisClient.lrange(`room:${room}`, 0, -1);
-      const parsedUsers = users.map((user) => JSON.parse(user));
-      io.emit('channel-users', { roomId: room, users: parsedUsers });
+    for (const roomId in roomUsers) {
+      const activeUsers = [];
+
+      // Duyệt qua từng user trong room
+      for (const user of roomUsers[roomId]) {
+        const socket = io.sockets.sockets.get(user.socketId);
+        if (socket && socket.connected) {
+          activeUsers.push(user); // User vẫn đang kết nối
+        } else {
+          // Xóa user khỏi Redis nếu socket không còn kết nối
+          await redisClient.lrem(`room:${roomId}`, 0, JSON.stringify(user));
+          console.log(
+            `Removed inactive user ${user.userId} from room ${roomId}`
+          );
+        }
+      }
+
+      // Cập nhật danh sách user hoạt động trong bộ nhớ cục bộ
+      roomUsers[roomId] = activeUsers;
+
+      // Phát danh sách user đã cập nhật đến tất cả client
+      io.emit('channel-users', { roomId, users: activeUsers });
     }
   };
 
@@ -142,14 +176,20 @@ io.on('connection', (socket) => {
     // Remove the user from any previous room they were in
     for (const existingRoom in roomUsers) {
       if (existingRoom !== roomId) {
-        roomUsers[existingRoom] = roomUsers[existingRoom].filter(
-          (user) => user.userId !== userId
+        const storedUser = roomUsers[existingRoom].find(
+          (u) => u.userId === userId
         );
-        await redisClient.lrem(
-          `room:${existingRoom}`,
-          0,
-          JSON.stringify({ userId, userName, avatar })
-        );
+        if (storedUser) {
+          roomUsers[existingRoom] = roomUsers[existingRoom].filter(
+            (user) => user.userId !== userId
+          );
+          await redisClient.lrem(
+            `room:${existingRoom}`,
+            0,
+            JSON.stringify(storedUser)
+          );
+          console.log(`Removed user ${userId} from room ${existingRoom}`);
+        }
       }
     }
 
@@ -180,21 +220,54 @@ io.on('connection', (socket) => {
       .emit('new-peer', { userId, userName, avatar, socketId: socket.id });
   });
 
-  // WebRTC signaling events
-  socket.on('offer', ({ offer, roomId, targetSocketId }) => {
-    io.to(targetSocketId).emit('offer', { offer, senderId: socket.id });
+  socket.on('new-user-joined', ({ roomId }) => {
+    socket.to(roomId).emit('new-peer', { socketId: socket.id });
   });
 
-  socket.on('answer', ({ answer, roomId, targetSocketId }) => {
-    io.to(targetSocketId).emit('answer', { answer, senderId: socket.id });
-  });
+  socket.on('user-video-toggled', ({ roomId, isVideoOn }) => {
+    console.log(`User ${socket.id} toggled video: ${isVideoOn}`);
 
+    // Phát sự kiện tới tất cả người dùng trong phòng, bao gồm cả người gửi
+    io.in(roomId).emit('user-video-toggled', {
+      userId: socket.id,
+      isVideoOn,
+    });
+
+    if (isVideoOn) {
+      socket.to(roomId).emit('new-peer', {
+        socketId: socket.id,
+      });
+    }
+  });
+  // Handle ICE candidate
   socket.on('ice-candidate', ({ candidate, roomId, targetSocketId }) => {
     io.to(targetSocketId).emit('ice-candidate', {
       candidate,
       senderId: socket.id,
     });
+    console.log(
+      `Forwarded ICE candidate from ${socket.id} to ${targetSocketId}`
+    );
   });
+
+  // Handle SDP offer
+  socket.on('offer', ({ offer, roomId, targetSocketId }) => {
+    io.to(targetSocketId).emit('offer', {
+      offer,
+      senderId: socket.id,
+    });
+    console.log(`Forwarded offer from ${socket.id} to ${targetSocketId}`);
+  });
+
+  // Handle SDP answer
+  socket.on('answer', ({ answer, roomId, targetSocketId }) => {
+    io.to(targetSocketId).emit('answer', {
+      answer,
+      senderId: socket.id,
+    });
+    console.log(`Forwarded answer from ${socket.id} to ${targetSocketId}`);
+  });
+
   // Leave a voice channel room
   socket.on('leave-room', async ({ roomId, userId }) => {
     if (roomUsers[roomId]) {
@@ -213,6 +286,10 @@ io.on('connection', (socket) => {
       }
 
       socket.leave(roomId);
+      io.in(roomId).emit('user-left-room', {
+        userId,
+        socketId: socket.id,
+      });
 
       updateAllRooms();
       console.log(`User ${userId} left room: ${roomId}`);
@@ -231,15 +308,22 @@ io.on('connection', (socket) => {
           roomUsers[roomId] = roomUsers[roomId].filter(
             (u) => u.userId !== user.userId
           );
+
           await redisClient.lrem(
             `room:${roomId}`,
             0,
             JSON.stringify(storedUser)
           );
+
+          io.in(roomId).emit('user-left-room', {
+            userId: user.userId,
+            socketId: socket.id,
+          });
+
+          console.log(`User ${user.userId} disconnected from room: ${roomId}`);
         }
       }
       updateAllRooms();
-      console.log('User disconnected:', socket.id);
     }
   });
 });
