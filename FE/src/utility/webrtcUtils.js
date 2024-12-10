@@ -27,13 +27,16 @@ export const removeTrack = (peerConnection, track) => {
 
 // Hàm thêm tất cả track vào peerConnection
 export const addTracksToPeerConnection = (peerConnection, stream) => {
-  const existingTracks = peerConnection
-    .getSenders()
-    .map((sender) => sender.track);
-
+  // Get the tracks from the stream
   stream.getTracks().forEach((track) => {
-    if (!existingTracks.includes(track)) {
-      addTrackSafely(peerConnection, track, stream);
+    // Check if the track already exists in the peer connection
+    const existingSender = peerConnection
+      .getSenders()
+      .find((sender) => sender.track === track);
+
+    // If a sender for this track already exists, skip adding the track
+    if (!existingSender) {
+      peerConnection.addTrack(track, stream);
     }
   });
 };

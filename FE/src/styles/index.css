@@ -97,8 +97,9 @@ body {
 }
 
 .video {
-  width: 100%;
+  width: 35%;
   height: 100%;
+  margin: 0 auto;
   -o-object-fit: cover;
   object-fit: cover;
 }
@@ -112,4 +113,12 @@ body {
   padding: 2px 5px;
   font-size: 14px;
   border-radius: 5px;
+}
+
+.camera-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
 }

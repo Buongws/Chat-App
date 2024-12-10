@@ -30,6 +30,7 @@ const RightSection = ({
   const subscribeChannel = async (channelId) => {
     if (socket && !socket.isSubscribed(channelId)) {
       const channel = socket.subscribe(channelId);
+      // eslint-disable-next-line no-unused-vars
       for await (let data of channel) {
         // setMessages((prevMessages) => [...prevMessages, data]);
         fetchMessages(selectedChannelId);
@@ -115,6 +116,7 @@ const RightSection = ({
 
   return (
     <div className="right-section h-screen bg-[#36393F] flex flex-col flex-1">
+      <div id="video-portal"></div>
       <ChannelHeader
         isDirectMessage={isDirectMessage}
         userName={userName}

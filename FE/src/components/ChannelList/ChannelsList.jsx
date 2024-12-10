@@ -64,7 +64,16 @@ const ChannelsList = () => {
       setOwnerId(
         servers.find((server) => server._id === param.serverId)?.owner
       );
-      fetchChannels(param.serverId); // Fetch channels for this server
+
+      // Fetch channels and set the first channel as selected
+      fetchChannels(param.serverId).then((channelsData) => {
+        if (channelsData.data.length > 0) {
+          const firstChannelId = channelsData.data[0]._id;
+          setSelectedChannelId(firstChannelId);
+          navigate(`/channels/${param.serverId}/${firstChannelId}`);
+        }
+      });
+
       fetchMembers(param.serverId); // Fetch members for this server
     } else {
       // Reset states if the server does not exist
@@ -100,8 +109,10 @@ const ChannelsList = () => {
     try {
       const channelsData = await getChannelsByServerId(serverId);
       setChannels(channelsData.data);
+      return channelsData; // Return fetched data
     } catch (error) {
       console.error("Error fetching channels:", error);
+      return { data: [] }; // Return empty data in case of error
     }
   };
 

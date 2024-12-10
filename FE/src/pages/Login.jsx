@@ -28,7 +28,7 @@ const LoginForm = () => {
     dispatch(login(email, password))
       .then(() => {
         setIsRedirecting(true);
-        setTimeout(() => navigate("/channels"), 1000);
+        setTimeout(() => navigate("/"), 1000);
       })
       .catch(() => {
         setSubmitting(false);

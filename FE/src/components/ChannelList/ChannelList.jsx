@@ -8,6 +8,7 @@ import VoiceStatusBar from "./VoiceStatusBar";
 import Footer from "./Footer";
 import TextChannels from "./TextChannels";
 import VoiceChannels from "./VoiceChannels";
+import ReactDOM from "react-dom";
 
 import {
   addTrackSafely,
@@ -39,12 +40,91 @@ const ChannelList = ({
   const localStreamRef = useRef();
   const peerConnections = useRef({});
 
+  const [isVideoOn, setIsVideoOn] = useState(false);
+  const localVideoRef = useRef(null);
+
   const { user } = useSelector((state) => state.user);
   const { servers } = useSelector((state) => state.servers);
 
   const isOwner = servers.some(
     (server) => server._id === serverId && server.owner === user?.data?.userId
   );
+
+  const toggleVideo = () => {
+    const newVideoState = !isVideoOn;
+    setIsVideoOn(newVideoState);
+
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject.getVideoTracks().forEach((track) => {
+        track.enabled = newVideoState;
+      });
+    }
+
+    // Emit the toggleVideoCall event to the server
+    socket.emit("toggleVideoCall", {
+      roomId: currentRoom,
+      userId: user.data.userId,
+      isVideoEnabled: newVideoState,
+    });
+  };
+
+  useEffect(() => {
+    if (isVideoOn) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then((stream) => {
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+          }
+        })
+        .catch((err) => {
+          console.error("Error accessing media devices.", err);
+        });
+    } else {
+      if (localVideoRef.current && localVideoRef.current.srcObject) {
+        localVideoRef.current.srcObject
+          .getTracks()
+          .forEach((track) => track.stop());
+        localVideoRef.current.srcObject = null;
+      }
+    }
+  }, [isVideoOn]);
+
+  useEffect(() => {
+    socket.on("video-call-toggled", ({ userId, isVideoEnabled }) => {
+      if (userId === user.data.userId) {
+        setIsVideoOn(isVideoEnabled);
+
+        if (isVideoEnabled) {
+          navigator.mediaDevices
+            .getUserMedia({ video: true, audio: false })
+            .then((stream) => {
+              if (localVideoRef.current) {
+                localVideoRef.current.srcObject = stream;
+              }
+              // Add the stream to peer connections
+              Object.values(peerConnections.current).forEach((pc) => {
+                addTracksToPeerConnection(pc, stream);
+              });
+            })
+            .catch((err) => {
+              console.error("Error accessing media devices.", err);
+            });
+        } else {
+          if (localVideoRef.current && localVideoRef.current.srcObject) {
+            localVideoRef.current.srcObject
+              .getTracks()
+              .forEach((track) => track.stop());
+            localVideoRef.current.srcObject = null;
+          }
+        }
+      }
+    });
+
+    return () => {
+      socket.off("video-call-toggled");
+    };
+  }, [currentRoom, user?.data?.userId]);
 
   const toggleEditChannel = () => {
     setEditChannelOpen(!editChannelOpen);
@@ -132,68 +212,7 @@ const ChannelList = ({
     }
   }, []);
 
-  const toggleVideo = async () => {
-    try {
-      if (
-        !localStreamRef.current ||
-        localStreamRef.current.getVideoTracks().length === 0
-      ) {
-        // Bật video
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        // Thêm video track vào `localStreamRef` hiện có
-        stream.getVideoTracks().forEach((track) => {
-          localStreamRef.current.addTrack(track);
-        });
-
-        // Hiển thị video local
-        const localVideoElement = document.getElementById("localVideo");
-        if (localVideoElement) {
-          localVideoElement.srcObject = localStreamRef.current;
-        }
-
-        // Thêm track vào các peerConnection
-        Object.values(peerConnections.current).forEach((peerConnection) => {
-          addTracksToPeerConnection(peerConnection, stream);
-        });
-
-        // Gửi thông báo bật video tới server
-        socket.emit("user-video-toggled", {
-          roomId: currentRoom,
-          userId: user.data.userId,
-          isVideoOn: true,
-        });
-      } else {
-        // Tắt video
-        const videoTracks = localStreamRef.current.getVideoTracks();
-        videoTracks.forEach((track) => {
-          Object.values(peerConnections.current).forEach((peerConnection) => {
-            removeTrack(peerConnection, track);
-          });
-          // track.stop();
-          localStreamRef.current.removeTrack(track);
-        });
-
-        // Dừng hiển thị video local
-        const localVideoElement = document.getElementById("localVideo");
-        if (localVideoElement) {
-          localVideoElement.srcObject = localStreamRef.current;
-        }
-
-        // Gửi thông báo tắt video tới server
-        socket.emit("user-video-toggled", {
-          roomId: currentRoom,
-          userId: user.data.userId,
-          isVideoOn: false,
-        });
-      }
-    } catch (error) {
-      console.error("Error toggling video:", error);
-    }
-  };
+  // Modify the toggleVideo function
 
   useEffect(() => {
     fetchRoomData();
@@ -243,23 +262,39 @@ const ChannelList = ({
       });
     });
 
+    socket.on("ice-candidate", async ({ candidate, senderId }) => {
+      const peerConnection = peerConnections[senderId];
+      if (peerConnection) {
+        try {
+          if (peerConnection.remoteDescription) {
+            await peerConnection.addIceCandidate(
+              new RTCIceCandidate(candidate)
+            );
+          } else {
+            // Queue the candidate if remote description is not set
+            peerConnection.pendingCandidates =
+              peerConnection.pendingCandidates || [];
+            peerConnection.pendingCandidates.push(candidate);
+          }
+        } catch (error) {
+          console.error("Error adding ICE candidate", error);
+        }
+      }
+    });
+
+    // After setting remote description, add any pending candidates
     socket.on("answer", async ({ answer, senderId }) => {
       const peerConnection = peerConnections[senderId];
       if (peerConnection) {
         await peerConnection.setRemoteDescription(
           new RTCSessionDescription(answer)
         );
-      }
-    });
-
-    socket.on("ice-candidate", ({ candidate, senderId }) => {
-      const peerConnection = peerConnections[senderId];
-      if (peerConnection) {
-        peerConnection
-          .addIceCandidate(new RTCIceCandidate(candidate))
-          .catch((error) => {
-            console.error("Error adding received ICE candidate:", error);
-          });
+        if (peerConnection.pendingCandidates) {
+          for (const candidate of peerConnection.pendingCandidates) {
+            await peerConnection.addIceCandidate(candidate);
+          }
+          peerConnection.pendingCandidates = [];
+        }
       }
     });
 
@@ -302,34 +337,6 @@ const ChannelList = ({
   }, [currentRoom]);
 
   useEffect(() => {
-    socket.on("user-video-toggled", async ({ userId, isVideoOn }) => {
-      if (isVideoOn) {
-        // Tạo lại kết nối với người dùng bật lại video
-        const peerConnection = peerConnections.current[userId];
-        if (peerConnection) {
-          peerConnection.ontrack = (event) => {
-            setPeers((prevPeers) => ({
-              ...prevPeers,
-              [userId]: event.streams[0],
-            }));
-          };
-        }
-      } else {
-        // Xóa video stream của người dùng khỏi UI
-        setPeers((prevPeers) => {
-          const updatedPeers = { ...prevPeers };
-          delete updatedPeers[userId];
-          return updatedPeers;
-        });
-      }
-    });
-
-    return () => {
-      socket.off("user-video-toggled");
-    };
-  }, []);
-
-  useEffect(() => {
     socket.on("connect", () => {
       if (currentRoom && user?.data) {
         // Emit join-room again to resync room users
@@ -369,7 +376,15 @@ const ChannelList = ({
     const peerConnection = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun.l.google.com:5349" },
+        { urls: "stun:stun1.l.google.com:3478" },
+        { urls: "stun:stun1.l.google.com:5349" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:5349" },
+        { urls: "stun:stun3.l.google.com:3478" },
+        { urls: "stun:stun3.l.google.com:5349" },
+        { urls: "stun:stun4.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:5349" },
       ],
     });
 
@@ -419,7 +434,6 @@ const ChannelList = ({
 
           try {
             const stream = await navigator.mediaDevices.getUserMedia({
-              video: true,
               audio: true,
             });
 
@@ -460,15 +474,27 @@ const ChannelList = ({
         localStreamRef.current.getTracks().forEach((track) => track.stop());
         localStreamRef.current = null;
       }
+
       Object.values(peerConnections.current).forEach((pc) => pc.close());
       peerConnections.current = {};
 
       setCurrentRoom(null);
       setConnectedRoomName(null);
+      setIsVideoOn(false);
       setPeers({});
+
+      // Update channelUsers to remove the current user from the room
       setChannelUsers((prevUsers) => {
         const updatedUsers = { ...prevUsers };
-        delete updatedUsers[currentRoom];
+        if (updatedUsers[currentRoom]) {
+          updatedUsers[currentRoom] = updatedUsers[currentRoom].filter(
+            (userObj) => userObj.userId !== user?.data?.userId
+          );
+
+          if (updatedUsers[currentRoom].length === 0) {
+            delete updatedUsers[currentRoom];
+          }
+        }
         return updatedUsers;
       });
     }
@@ -513,9 +539,22 @@ const ChannelList = ({
           roomName={connectedRoomName}
           onLeaveRoom={leaveRoom}
           servers={servers}
-          toggleVideo={toggleVideo}
+          toggleCamera={toggleVideo}
+          isVideoOn={isVideoOn}
         />
       )}
+
+      <div className="camera-container mt-4">
+        {isVideoOn && (
+          <video
+            ref={localVideoRef}
+            className="w-full h-auto"
+            autoPlay
+            muted
+            playsInline
+          />
+        )}
+      </div>
 
       <Footer
         handleUpdate={handleUpdate}
@@ -524,43 +563,6 @@ const ChannelList = ({
         isMicMuted={isMicMuted}
         isHeadphoneMuted={isHeadphoneMuted}
       />
-
-      <div className="video-grid">
-        {/* Video local */}
-        {connectedRoomName && (
-          <div className="video-wrapper">
-            <video
-              id="localVideo"
-              autoPlay
-              muted
-              className="video"
-              style={{ background: "black" }}
-            ></video>
-            <p className="video-label">You</p>
-          </div>
-        )}
-        {/* Video remote */}
-        {Object.entries(peers || {}).map(([socketId, stream]) => {
-          if (!stream) return null; // Bỏ qua nếu stream không tồn tại
-          return (
-            <div className="video-wrapper" key={socketId}>
-              <video
-                data-peer-id={socketId}
-                ref={(video) => {
-                  if (video) {
-                    video.srcObject = stream;
-                    video.muted = true;
-                  }
-                }}
-                autoPlay
-                className="video"
-                style={{ background: "black" }}
-              ></video>
-              <p className="video-label">User {user?.data?.user}</p>
-            </div>
-          );
-        })}
-      </div>
 
       {/* Render remote streams */}
       <div>
