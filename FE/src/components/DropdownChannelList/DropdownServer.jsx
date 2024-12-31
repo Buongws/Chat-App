@@ -13,7 +13,7 @@ import {
 
 import InviteCodeModal from "../InviteCodeModal/InviteCodeModal";
 import ServerSettings from "../ServerSettings/ServerSettings";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInviteCodeById,
   fetchServerById,
@@ -31,6 +31,13 @@ const DropdownServer = ({ serverId, onCreateChannel }) => {
 
   const dispatch = useDispatch();
   const previousServerId = useRef(null);
+
+  const { user } = useSelector((state) => state.user);
+  const { servers } = useSelector((state) => state.servers);
+
+  const isOwner = servers.some(
+    (server) => server._id === serverId && server.owner === user?.data?.userId
+  );
 
   useEffect(() => {
     if (serverId && serverId !== previousServerId.current) {
@@ -85,30 +92,34 @@ const DropdownServer = ({ serverId, onCreateChannel }) => {
           />
           <DropdownItem divider />
 
-          <DropdownItem
-            className="text-white hover:bg-[#3C3F45]"
-            onClick={toggleSettings}
-          >
-            Server Settings
-            <Cog8ToothIcon className="h-5 w-5 inline-block ml-2 text-gray-400" />
-          </DropdownItem>
+          {isOwner && (
+            <>
+              <DropdownItem
+                className="text-white hover:bg-[#3C3F45]"
+                onClick={toggleSettings}
+              >
+                Server Settings
+                <Cog8ToothIcon className="h-5 w-5 inline-block ml-2 text-gray-400" />
+              </DropdownItem>
 
-          <ServerSettings
-            isOpen={settings}
-            toggle={toggleSettings}
-            serverId={serverId}
-            serverName={serverName}
-            setServerName={setServerName}
-            imageUrl={imageUrl}
-            setImageUrl={setImageUrl}
-          />
+              <ServerSettings
+                isOpen={settings}
+                toggle={toggleSettings}
+                serverId={serverId}
+                serverName={serverName}
+                setServerName={setServerName}
+                imageUrl={imageUrl}
+                setImageUrl={setImageUrl}
+              />
 
-          <DropdownItem
-            onClick={onCreateChannel}
-            className="text-white hover:bg-[#3C3F45]"
-          >
-            Create Channel
-          </DropdownItem>
+              <DropdownItem
+                onClick={onCreateChannel}
+                className="text-white hover:bg-[#3C3F45]"
+              >
+                Create Channel
+              </DropdownItem>
+            </>
+          )}
         </DropdownMenu>
       </Dropdown>
     </div>

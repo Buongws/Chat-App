@@ -1,16 +1,16 @@
 import {
-  ComputerDesktopIcon,
-  VideoCameraIcon,
+  // ComputerDesktopIcon,
+  // VideoCameraIcon,
   ArrowRightEndOnRectangleIcon,
-  VideoCameraSlashIcon,
+  // VideoCameraSlashIcon,
 } from "@heroicons/react/24/outline";
 
 const VoiceStatusBar = ({
   roomName,
   onLeaveRoom,
   servers,
-  toggleCamera,
-  isVideoOn,
+  // toggleCamera,
+  // isVideoOn,
 }) => {
   return (
     <div className="bg-[#232428] absolute w-full bottom-[6%] p-2 flex items-center justify-between text-white flex-col mb-1">
@@ -30,7 +30,7 @@ const VoiceStatusBar = ({
           <ArrowRightEndOnRectangleIcon className="w- h-6" />
         </button>
       </div>
-      <div className="flex w-full justify-around py-2 space-x-4">
+      {/* <div className="flex w-full justify-around py-2 space-x-4">
         <button
           className="text-gray-300 hover:text-white p-2 rounded bg-[#313338] w-full flex justify-center"
           onClick={toggleCamera}
@@ -44,7 +44,7 @@ const VoiceStatusBar = ({
         <button className="text-gray-300 hover:text-white p-2 rounded bg-[#313338] w-full  flex justify-center">
           <ComputerDesktopIcon className="w-6 h-6" />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

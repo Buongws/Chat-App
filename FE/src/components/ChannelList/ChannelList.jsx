@@ -190,7 +190,8 @@ const ChannelList = ({
 
   const fetchRoomData = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:3000/roomUser"); // Adjust to your server's URL
+      const urlServerRoomUser = import.meta.env.VITE_INVITE_CODE_URL;
+      const response = await fetch(urlServerRoomUser); // Adjust to your server's URL
       const data = await response.json();
 
       console.log("Room data:", data.data);

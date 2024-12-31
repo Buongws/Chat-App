@@ -95,8 +95,12 @@ const Home = () => {
               can spend time together. A place that makes it easy to talk every
               day and hang out more often.
             </h2>
+
             <div className="flex flex-col items-center sm:flex-row md:flex-col lg:flex-row sm:items-center gap-6">
-              <button className="bg-gray-900 text-white w-76 font-medium flex items-center justify-center rounded-full p-4 text-lg hover:shadow-2xl hover:bg-gray-800 focus:outline-none transition duration-200 ease-in-out">
+              <button
+                onClick={navigateLogin}
+                className="bg-gray-900 text-white w-76 font-medium flex items-center justify-center rounded-full p-4 text-lg hover:shadow-2xl hover:bg-gray-800 focus:outline-none transition duration-200 ease-in-out"
+              >
                 Open SYNC ROOM in your browser
               </button>
             </div>

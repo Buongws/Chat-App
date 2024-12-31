@@ -122,3 +122,21 @@ body {
   width: 100%;
   height: auto;
 }
+
+.remote-streams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.remote-user {
+  position: relative;
+}
+
+.remote-video {
+  width: 200px;
+  height: 150px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  border-radius: 8px;
+}
