@@ -149,6 +149,9 @@ const ChannelsList = () => {
         setChannelName(clickedChannel.channelName);
         navigate(`/channels/${selectedServerId}/${channelId}`);
       }
+      if (clickedChannel && type === "VOICE") {
+        navigate(`/channels/${selectedServerId}/${channelId}`);
+      }
     },
     [channels, navigate, selectedServerId]
   );

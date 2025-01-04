@@ -522,6 +522,7 @@ const ChannelList = ({
           toggleModal={toggleModal}
           toggleEditChannel={toggleEditChannel}
           socket={socket}
+          onChannelClick={onChannelClick}
         />
 
         <EditChannelModal

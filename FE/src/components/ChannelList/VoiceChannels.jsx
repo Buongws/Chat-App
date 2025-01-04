@@ -9,6 +9,7 @@ const VoiceChannels = ({
   joinRoom,
   toggleModal,
   toggleEditChannel,
+  onChannelClick,
 }) => {
   return (
     <div>
@@ -23,7 +24,13 @@ const VoiceChannels = ({
       {channels
         .filter((channel) => channel.channelType === "VOICE")
         .map((channel) => (
-          <div key={channel._id} className="mt-2">
+          <div
+            key={channel._id}
+            onClick={() => {
+              onChannelClick(channel._id, "VOICE");
+            }}
+            className="mt-2"
+          >
             <div
               onClick={() => joinRoom(channel._id, channel.channelName)}
               className={`flex justify-between items-center p-2 cursor-pointer rounded ${
