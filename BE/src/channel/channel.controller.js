@@ -61,6 +61,13 @@ const updateChannel = async (req, res, next) => {
   const { userId } = req.user;
   try {
     const server = await serverService.getServerByChannelId(id);
+
+    if (!server) {
+      return res
+        .status(msg.responseStatus.NOT_FOUND)
+        .json(response(msg.responseStatus.NOT_FOUND, 'Server not found'));
+    }
+
     if (server.owner._id.toString() !== userId) {
       return res
         .status(msg.responseStatus.FORBIDDEN)
@@ -88,11 +95,11 @@ const deleteChannel = async (req, res, next) => {
   const { userId } = req.user;
   try {
     const server = await serverService.getServerByChannelId(id);
+
     if (server.owner._id.toString() !== userId) {
       return res
         .status(msg.responseStatus.FORBIDDEN)
-        .json(response(msg.responseStatus.FORBIDDEN, msg.errorCode.FORBIDDEN
-        ));
+        .json(response(msg.responseStatus.FORBIDDEN, msg.errorCode.FORBIDDEN));
     }
     await channelService.deleteChannel(id);
     return res
@@ -124,9 +131,12 @@ const getAllChannels = async (req, res, next) => {
 };
 
 const getChannelByChannelId = async (req, res, next) => {
-  const {serverId, channelId} = req.params;
+  const { serverId, channelId } = req.params;
   try {
-    const channel = await channelService.getChannelByChannelId(serverId, channelId);
+    const channel = await channelService.getChannelByChannelId(
+      serverId,
+      channelId
+    );
     return res
       .status(msg.responseStatus.SUCCESS)
       .json(
@@ -136,12 +146,10 @@ const getChannelByChannelId = async (req, res, next) => {
           channel
         )
       );
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
-}
-
+};
 
 export default {
   getChannelByServerId,
@@ -149,5 +157,5 @@ export default {
   updateChannel,
   deleteChannel,
   getAllChannels,
-  getChannelByChannelId
+  getChannelByChannelId,
 };

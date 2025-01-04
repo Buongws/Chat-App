@@ -48,7 +48,6 @@ const restoreRoomUsersFromRedis = async () => {
     const users = await redisClient.lrange(key, 0, -1);
     roomUsers[roomId] = users.map((user) => JSON.parse(user));
   }
-  console.log('Restored room users from Redis:', roomUsers);
 };
 
 // Restore room users before handling any socket connections
@@ -112,6 +111,7 @@ app.use('/channel', channelRoute);
 app.use('/message', messageRoute);
 app.use('/roomUser', roomUserRedis);
 app.use('/directMessage', directMessageRoute);
+
 swaggerSetup(app);
 // error handler
 app.use(errorHandler);
@@ -142,9 +142,6 @@ io.on('connection', (socket) => {
         } else {
           // Xóa user khỏi Redis nếu socket không còn kết nối
           await redisClient.lrem(`room:${roomId}`, 0, JSON.stringify(user));
-          console.log(
-            `Removed inactive user ${user.userId} from room ${roomId}`
-          );
         }
       }
 
@@ -169,8 +166,6 @@ io.on('connection', (socket) => {
 
   // Join a voice channel room
   socket.on('join-room', async ({ roomId, userId, userName, avatar }) => {
-    console.log('userId have join the room', userId, 'In room', roomId);
-
     await ensureList(`room:${roomId}`);
 
     // Remove the user from any previous room they were in
@@ -224,21 +219,6 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('new-peer', { socketId: socket.id });
   });
 
-  socket.on('user-video-toggled', ({ roomId, isVideoOn }) => {
-    console.log(`User ${socket.id} toggled video: ${isVideoOn}`);
-
-    // Phát sự kiện tới tất cả người dùng trong phòng, bao gồm cả người gửi
-    io.in(roomId).emit('user-video-toggled', {
-      userId: socket.id,
-      isVideoOn,
-    });
-
-    if (isVideoOn) {
-      socket.to(roomId).emit('new-peer', {
-        socketId: socket.id,
-      });
-    }
-  });
   // Handle ICE candidate
   socket.on('ice-candidate', ({ candidate, roomId, targetSocketId }) => {
     io.to(targetSocketId).emit('ice-candidate', {
