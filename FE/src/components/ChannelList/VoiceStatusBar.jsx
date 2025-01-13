@@ -13,7 +13,7 @@ const VoiceStatusBar = ({
   // isVideoOn,
 }) => {
   return (
-    <div className="bg-[#232428] absolute w-full bottom-[6%] p-2 flex items-center justify-between text-white flex-col mb-1">
+    <div className="bg-[#232428] absolute w-full bottom-[5%] p-2 flex items-center justify-between text-white flex-col mb-1">
       <div className="flex justify-between w-full">
         <div>
           <p className="text-sm font-semibold text-green-400">

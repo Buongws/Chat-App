@@ -40,8 +40,6 @@ const logout = async () => {
     // Clear local storage data
     localStorage.removeItem("user");
     localStorage.removeItem("socketcluster.authToken");
-
-    Toast.showSuccess("Logout successful");
   } catch (error) {
     Toast.showError("Logout failed");
     throw error;

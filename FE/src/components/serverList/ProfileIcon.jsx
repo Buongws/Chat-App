@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import discordIcon from "../../assets/images/icons/discord-icon.png";
+import discordIcon from "../../assets/images/landingPage/LOGOX.png";
 
 const ProfileIcon = ({ onClick }) => {
   const navigate = useNavigate();

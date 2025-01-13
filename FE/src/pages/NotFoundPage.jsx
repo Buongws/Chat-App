@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DiscordBlackLogo from "../assets/images/icons/DiscordLogoBlack.svg";
+import DiscordBlackLogo from "../assets/images/landingPage/LOGOX.png";
 import PageNotFoundGif from "../assets/images/DiscordPageNotFoundGIF.gif";
 import { useNavigate } from "react-router-dom";
 import Bars4Icon from "@heroicons/react/24/solid/Bars4Icon";
@@ -18,7 +18,7 @@ const NotFoundPage = () => {
           <img
             src={DiscordBlackLogo}
             alt="Discord Logo"
-            className="w-[10rem] h-[3rem] cursor-pointer"
+            className="w-[8rem] h-[6rem] cursor-pointer"
             onClick={() => navigate("/")}
           />
 
@@ -97,12 +97,12 @@ const NotFoundPage = () => {
               </li>
               <li>
                 <a href="#" className="text-blue-500 hover:underline">
-                  @Discord
+                  @SyncRoom
                 </a>
               </li>
               <li>
                 <a href="#" className="text-blue-500 hover:underline">
-                  Discord Support
+                  SyncRoom Support
                 </a>
               </li>
             </ul>

@@ -10,6 +10,7 @@ const VoiceChannels = ({
   toggleModal,
   toggleEditChannel,
   onChannelClick,
+  onLeaveRoom,
 }) => {
   return (
     <div>
@@ -28,6 +29,7 @@ const VoiceChannels = ({
             key={channel._id}
             onClick={() => {
               onChannelClick(channel._id, "VOICE");
+              onLeaveRoom();
             }}
             className="mt-2"
           >

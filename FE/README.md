@@ -10,7 +10,7 @@ Welcome to the Front-End Project repository. This project is part of the FPT Fre
 
 ## Introduction
 
-This project is our assignment to build a React application. Our goal in this project is to apply the knowledge we have learned in the FPT Fresher program to build a real-world application. We are going to build a simple Discord clone.
+This project is our assignment to build a React application. Our goal in this project is to apply the knowledge we have learned in the FPT Fresher program to build a real-world application. We are going to build a simple Syncroom clone.
 
 ## Installation
 

@@ -523,6 +523,7 @@ const ChannelList = ({
           toggleEditChannel={toggleEditChannel}
           socket={socket}
           onChannelClick={onChannelClick}
+          onLeaveRoom={leaveRoom}
         />
 
         <EditChannelModal

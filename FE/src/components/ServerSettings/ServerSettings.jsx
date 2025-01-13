@@ -123,7 +123,7 @@ function ServerSettings({
                 className="absolute inset-0 opacity-0 cursor-pointer "
               />
             </div>
-            <div className="ml-4 w-1/3">
+            <div className="ml-4 w-1/3 flex flex-col">
               <span className="text-sm">
                 {" "}
                 We recommend an image of at least 512x512 for the server.
@@ -133,7 +133,7 @@ function ServerSettings({
                 onClick={() =>
                   document.querySelector('input[type="file"]').click()
                 }
-                className="bg-[#36393F] px-1 py-2 mt-3 text-sm text-white py-2 px-4 rounded-md hover:bg-[#3f4247] transition-colors "
+                className="bg-[#36393F]  mt-3 text-sm text-white py-2 px-4 rounded-md hover:bg-[#3f4247] transition-colors "
               >
                 Upload Image
               </Button>

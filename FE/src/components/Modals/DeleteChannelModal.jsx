@@ -13,6 +13,8 @@ function DeleteChannelModal({
 }) {
   const dispatch = useDispatch();
 
+  console.log("DeleteChannelModal -> channelId", channelId);
+
   const handleDeleteChannel = () => {
     dispatch(deleteChannel(channelId))
       .then(() => {

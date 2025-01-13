@@ -1,27 +1,49 @@
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Input,
+  FormGroup,
+  Label,
+} from "reactstrap";
+import {
+  XMarkIcon,
+  HashtagIcon,
+  SpeakerWaveIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
+import { Formik, Form, Field } from "formik";
 
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, Label } from 'reactstrap';
-import { XMarkIcon, HashtagIcon, SpeakerWaveIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { Formik, Form, Field } from 'formik';
-
-const CustomModal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
+const CustomModal = ({
+  isOpen,
+  onClose,
+  title,
   subtitle,
   type,
   onSubmit,
   validationSchema,
   initialValues,
 }) => {
-  const isServerModal = type === 'server';
+  const isServerModal = type === "server";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} centered>
       <div className="bg-[#313338] text-white rounded-md w-full">
-        <ModalHeader className={`border-b border-gray-700 p-4 ${isServerModal ? 'text-center' : ''}`}>
+        <ModalHeader
+          className={`border-b border-gray-700 p-4 ${
+            isServerModal ? "text-center" : ""
+          }`}
+        >
           <h2 className="text-xl font-bold">{title}</h2>
           <div className="text-sm text-gray-400">{subtitle}</div>
-          <button onClick={onClose} className={`absolute ${isServerModal ? 'top-8 right-8' : 'top-4 right-4'} text-gray-400 hover:text-gray-200`}>
+          <button
+            onClick={onClose}
+            className={`absolute ${
+              isServerModal ? "top-8 right-8" : "top-4 right-4"
+            } text-gray-400 hover:text-gray-200`}
+          >
             <XMarkIcon className="h-5 w-5" />
           </button>
         </ModalHeader>
@@ -63,14 +85,27 @@ const CustomModal = ({
                   )}
                   {!isServerModal && (
                     <div className="mb-4">
-                      <h3 className="mb-2 text-xs font-bold uppercase text-gray-400">CHANNEL TYPE</h3>
+                      <h3 className="mb-2 text-xs font-bold uppercase text-gray-400">
+                        CHANNEL TYPE
+                      </h3>
                       <div className="space-y-2 bg-[#2b2d31] p-2 rounded">
-                        <label className={`flex items-center justify-between cursor-pointer p-3 ${values.channelType === 'TEXT' ? 'bg-[#404249]' : 'hover:bg-[#35373C]'}`}>
+                        <label
+                          className={`flex items-center justify-between cursor-pointer p-3 ${
+                            values.channelType === "TEXT"
+                              ? "bg-[#404249]"
+                              : "hover:bg-[#35373C]"
+                          }`}
+                        >
                           <div className="flex items-center">
                             <HashtagIcon className="mr-3 h-6 w-6" />
                             <div className="flex flex-col">
-                              <span className="text-base font-medium">Text</span>
-                              <span className="text-xs text-[#B5BAC1]">Send messages, images, GIFs, emoji, opinions, and puns</span>
+                              <span className="text-base font-medium">
+                                Text
+                              </span>
+                              <span className="text-xs text-[#B5BAC1]">
+                                Send messages, images, GIFs, emoji, opinions,
+                                and puns
+                              </span>
                             </div>
                           </div>
                           <Field
@@ -81,12 +116,23 @@ const CustomModal = ({
                           />
                         </label>
                         <div className="h-px bg-[#35373C]"></div>
-                        <label className={`flex items-center justify-between cursor-pointer p-3 ${values.channelType === 'VOICE' ? 'bg-[#404249]' : 'hover:bg-[#35373C]'}`}>
+                        <label
+                          className={`flex items-center justify-between cursor-pointer p-3 ${
+                            values.channelType === "VOICE"
+                              ? "bg-[#404249]"
+                              : "hover:bg-[#35373C]"
+                          }`}
+                        >
                           <div className="flex items-center">
                             <SpeakerWaveIcon className="mr-3 h-6 w-6" />
                             <div className="flex flex-col">
-                              <span className="text-base font-medium">Voice</span>
-                              <span className="text-xs text-[#B5BAC1]">Hang out together with voice, video, and screen share</span>
+                              <span className="text-base font-medium">
+                                Voice
+                              </span>
+                              <span className="text-xs text-[#B5BAC1]">
+                                Hang out together with voice, video, and screen
+                                share
+                              </span>
                             </div>
                           </div>
                           <Field
@@ -108,18 +154,27 @@ const CustomModal = ({
                   <Field
                     name={isServerModal ? "serverName" : "channelName"}
                     as={Input}
-                    placeholder={isServerModal ? "Enter server name" : "new-channel"}
+                    placeholder={
+                      isServerModal ? "Enter server name" : "new-channel"
+                    }
                     className="p-2 text-white placeholder-gray-500 bg-[#1e1f22] border-none focus:ring-0 rounded-md w-full"
                     style={{ backgroundColor: "#1e1f22" }}
                   />
                   {isServerModal && (
                     <div className="flex text-[12px] text-[#696e75] mt-2">
-                      By creating a server, you agree to Discord{" "}
-                      <a className="ml-2 text-[#03a0ef]"> Community Guidelines</a>
+                      By creating a server, you agree to SyncRoom{" "}
+                      <a className="ml-2 text-[#03a0ef]">
+                        {" "}
+                        Community Guidelines
+                      </a>
                     </div>
                   )}
                 </FormGroup>
-                <ModalFooter className={`border-t border-gray-700 p-4 ${isServerModal ? 'flex justify-between' : 'flex justify-end'}`}>
+                <ModalFooter
+                  className={`border-t border-gray-700 p-4 ${
+                    isServerModal ? "flex justify-between" : "flex justify-end"
+                  }`}
+                >
                   {isServerModal ? (
                     <>
                       <Button
@@ -132,7 +187,9 @@ const CustomModal = ({
                       <Button
                         type="submit"
                         color="primary"
-                        disabled={isSubmitting || !values.serverName || !values.image}
+                        disabled={
+                          isSubmitting || !values.serverName || !values.image
+                        }
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md"
                       >
                         {isSubmitting ? "Creating..." : "Create"}
@@ -140,10 +197,18 @@ const CustomModal = ({
                     </>
                   ) : (
                     <>
-                      <div onClick={onClose} className="hover:underline mr-3 cursor-pointer mt-2">Cancel</div>
+                      <div
+                        onClick={onClose}
+                        className="hover:underline mr-3 cursor-pointer mt-2"
+                      >
+                        Cancel
+                      </div>
                       <Button
                         type="submit"
-                        disabled={isSubmitting || !values[isServerModal ? "serverName" : "channelName"]}
+                        disabled={
+                          isSubmitting ||
+                          !values[isServerModal ? "serverName" : "channelName"]
+                        }
                         className="bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-[#5865f2] disabled:opacity-50 px-4 py-2 rounded"
                       >
                         Create {isServerModal ? "Server" : "Channel"}
